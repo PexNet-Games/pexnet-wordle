@@ -8,9 +8,9 @@ import {
 	signal,
 } from "@angular/core";
 import { InstructionsModalComponent } from "../instructions-modal/instructions-modal.component";
-import { PopUpComponent } from "../pop-up/pop-up.component";
-import { WordGuess, WordleService } from "./wordle.service";
+import { MessageType, PopUpComponent } from "../pop-up/pop-up.component";
 import { removeAccents } from "../utils/accent-utils";
+import { GameStatus, WordGuess, WordleService } from "./wordle.service";
 
 @Component({
 	selector: "app-wordle",
@@ -21,12 +21,10 @@ import { removeAccents } from "../utils/accent-utils";
 export class WordleComponent {
 	public guesses = signal<WordGuess[]>([]);
 	public currentGuess = signal<string[]>([]);
-	public gameStatus = signal<"playing" | "won" | "lost">("playing");
+	public gameStatus = signal<GameStatus>("playing");
 	public invalidWord = signal<boolean>(false);
 	public invalidWordMessage = signal<string>("");
-	public messageType = signal<"error" | "success" | "warning" | "info">(
-		"error",
-	);
+	public messageType = signal<MessageType>("error");
 	public showInstructions = signal<boolean>(false);
 
 	public wordleService = inject(WordleService);

@@ -11,10 +11,10 @@ export interface WordGuess {
 	letters: LetterGuess[];
 }
 
+export type GameStatus = "playing" | "won" | "lost";
+
 const POPULAR_FRENCH_WORDS = "assets/french_words_popular.txt";
 const FULL_FRENCH_WORDS = "assets/french_words_full.txt";
-
-// Error messages with types
 
 @Injectable({
 	providedIn: "root",
@@ -26,11 +26,11 @@ export class WordleService {
 	private currentGuess = "";
 	private guesses: WordGuess[] = [];
 	private currentRow = 0;
-	private gameStatus: "playing" | "won" | "lost" = "playing";
+	private gameStatus: GameStatus = "playing";
 
 	public guessesWritable = signal<WordGuess[]>([]);
 	public currentGuessWritable = signal<string>("");
-	public gameStatusWritable = signal<"playing" | "won" | "lost">("playing");
+	public gameStatusWritable = signal<GameStatus>("playing");
 	public invalidWordWritable = signal<boolean>(false);
 	public invalidWordMessageWritable = signal<string>("");
 	public messageTypeWritable = signal<"error" | "success" | "warning" | "info">(
