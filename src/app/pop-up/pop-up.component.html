@@ -1,0 +1,14 @@
+@if (isVisible && message) {
+  <div
+    class="pointer-events-none fixed top-20 left-1/2 z-50 -translate-x-1/2 transform"
+  >
+    <div
+      class="fade-in-out max-w-xs rounded-lg bg-gray-700 px-6 py-3 text-center text-white shadow-lg"
+    >
+      <div class="flex items-center justify-center gap-2">
+        <span class="text-lg">{{ getEmoji() }}</span>
+        <p class="text-sm font-semibold">{{ message }}</p>
+      </div>
+    </div>
+  </div>
+}
