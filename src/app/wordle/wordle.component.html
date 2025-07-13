@@ -1,6 +1,25 @@
 <div
   class="mx-auto flex min-h-screen max-w-md flex-col bg-white p-4 md:max-w-lg lg:max-w-xl"
 >
+  <!-- Header -->
+  <div class="mb-4 text-center">
+    <h1 class="mb-2 text-2xl font-bold text-gray-800 sm:text-3xl">Wordle</h1>
+    <p class="text-xs text-gray-600 sm:text-sm">Devinez le mot en 6 essais</p>
+    <button
+      (click)="onShowInstructions()"
+      class="mt-2 text-xs text-blue-500 underline hover:text-blue-700"
+    >
+      Comment jouer ?
+    </button>
+  </div>
+
+  <!-- Instructions Modal -->
+  <app-instructions-modal
+    [isVisible]="showInstructions()"
+    (close)="onCloseInstructions()"
+  >
+  </app-instructions-modal>
+
   <!-- Error Popup Component -->
   <app-pop-up
     [message]="invalidWordMessage()"
@@ -136,13 +155,4 @@
       }
     </div>
   }
-
-  <!-- Instructions -->
-  <div
-    class="mt-4 space-y-1 text-center text-xs text-gray-500 sm:mt-6 sm:text-sm md:mt-8 md:text-base"
-  >
-    <p>🟩 Lettre correcte à la bonne position</p>
-    <p>🟨 Lettre présente mais mal placée</p>
-    <p>⬜ Lettre absente du mot</p>
-  </div>
 </div>

@@ -7,12 +7,13 @@ import {
 	inject,
 	signal,
 } from "@angular/core";
+import { InstructionsModalComponent } from "../instructions-modal/instructions-modal.component";
 import { PopUpComponent } from "../pop-up/pop-up.component";
 import { WordGuess, WordleService } from "./wordle.service";
 
 @Component({
 	selector: "app-wordle",
-	imports: [CommonModule, PopUpComponent],
+	imports: [CommonModule, PopUpComponent, InstructionsModalComponent],
 	templateUrl: "./wordle.component.html",
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -25,6 +26,7 @@ export class WordleComponent {
 	public messageType = signal<"error" | "success" | "warning" | "info">(
 		"error",
 	);
+	public showInstructions = signal<boolean>(false);
 
 	public wordleService = inject(WordleService);
 
@@ -71,6 +73,14 @@ export class WordleComponent {
 
 	onNewGame(): void {
 		this.wordleService.newGame();
+	}
+
+	onShowInstructions(): void {
+		this.showInstructions.set(true);
+	}
+
+	onCloseInstructions(): void {
+		this.showInstructions.set(false);
 	}
 
 	getLetterForPosition(rowIndex: number, letterIndex: number): string {
