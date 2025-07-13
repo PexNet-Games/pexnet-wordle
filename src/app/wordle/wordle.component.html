@@ -1,18 +1,6 @@
 <div
   class="mx-auto flex min-h-screen max-w-md flex-col bg-white p-4 md:max-w-lg lg:max-w-xl"
 >
-  <!-- Header -->
-  <div class="mb-4 text-center">
-    <h1 class="mb-2 text-2xl font-bold text-gray-800 sm:text-3xl">Wordle</h1>
-    <p class="text-xs text-gray-600 sm:text-sm">Devinez le mot en 6 essais</p>
-    <button
-      (click)="onShowInstructions()"
-      class="mt-2 text-xs text-blue-500 underline hover:text-blue-700"
-    >
-      Comment jouer ?
-    </button>
-  </div>
-
   <!-- Instructions Modal -->
   <app-instructions-modal
     [isVisible]="showInstructions()"
@@ -29,10 +17,10 @@
   </app-pop-up>
 
   <!-- Game Board -->
-  <div class="mb-4 grid flex-1 grid-rows-6 gap-1 sm:gap-2 md:gap-3">
+  <div class="mb-6 flex flex-col gap-1 sm:gap-2 md:gap-3">
     @for (guess of guesses(); track $index; let rowIndex = $index) {
       <div
-        class="grid grid-cols-5 justify-center gap-1 sm:gap-2 md:gap-3"
+        class="flex justify-center gap-1 sm:gap-2 md:gap-3"
         [ngClass]="{
           shake: invalidWord() && rowIndex === getCurrentRowIndex(),
         }"
@@ -43,7 +31,7 @@
           let letterIndex = $index
         ) {
           <div
-            class="flex aspect-square w-full items-center justify-center rounded-sm border-3 text-2xl font-bold uppercase transition-colors duration-300 sm:text-3xl md:text-4xl lg:text-5xl"
+            class="flex aspect-square h-12 w-12 items-center justify-center rounded-sm border-3 text-lg font-bold uppercase transition-colors duration-300 sm:h-14 sm:w-14 sm:text-xl md:h-16 md:w-16 md:text-2xl lg:text-3xl"
             [ngClass]="{
               'border-gray-300 bg-white text-gray-700':
                 getStatusForPosition(rowIndex, letterIndex) === 'empty' &&
@@ -72,7 +60,7 @@
   <!-- Game Status -->
   @if (gameStatus(); as status) {
     @if (status !== "playing") {
-      <div class="mb-4 text-center">
+      <div class="mb-2 text-center">
         <div
           class="rounded-lg p-3 sm:p-4 md:p-5"
           [ngClass]="{
@@ -120,7 +108,7 @@
                     ? onBackspace()
                     : onLetterClick(key)
               "
-              class="h-10 min-w-8 cursor-pointer rounded text-xs font-semibold transition-colors duration-200 sm:h-12 sm:min-w-10 sm:text-sm md:h-14 md:min-w-12 md:text-base lg:h-16 lg:min-w-14 lg:text-lg"
+              class="h-10 min-w-8 cursor-pointer rounded text-sm font-semibold transition-colors duration-200 sm:h-12 sm:min-w-10 sm:text-base md:h-14 md:min-w-12 md:text-lg lg:h-16 lg:min-w-14 lg:text-xl"
               [ngClass]="{
                 'bg-gray-400 text-white hover:bg-gray-500':
                   key === 'ENTER' || key === 'BACKSPACE',
@@ -155,4 +143,12 @@
       }
     </div>
   }
+  <div class="mb-4 text-center">
+    <button
+      (click)="onShowInstructions()"
+      class="mt-2 text-xs text-blue-500 underline hover:text-blue-700"
+    >
+      Comment jouer ?
+    </button>
+  </div>
 </div>
