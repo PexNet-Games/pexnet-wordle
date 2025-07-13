@@ -10,6 +10,7 @@ import {
 import { InstructionsModalComponent } from "../instructions-modal/instructions-modal.component";
 import { PopUpComponent } from "../pop-up/pop-up.component";
 import { WordGuess, WordleService } from "./wordle.service";
+import { removeAccents } from "../utils/accent-utils";
 
 @Component({
 	selector: "app-wordle",
@@ -54,8 +55,13 @@ export class WordleComponent {
 			this.wordleService.submitGuess();
 		} else if (event.key === "Backspace") {
 			this.wordleService.removeLetter();
-		} else if (/^[a-zA-Z]$/.test(event.key)) {
-			this.wordleService.addLetter(event.key);
+		} else if (
+			/^[a-zA-ZàáâãäåèéêëìíîïòóôõöùúûüýÿçñÀÁÂÃÄÅÈÉÊËÌÍÎÏÒÓÔÕÖÙÚÛÜÝŸÇÑ]$/.test(
+				event.key,
+			)
+		) {
+			const normalizedKey = removeAccents(event.key.toUpperCase());
+			this.wordleService.addLetter(normalizedKey);
 		}
 	}
 
