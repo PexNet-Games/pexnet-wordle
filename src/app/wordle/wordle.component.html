@@ -1,6 +1,18 @@
 <div
-  class="mx-auto flex min-h-screen max-w-md flex-col bg-white p-4 md:max-w-lg lg:max-w-xl"
+  class="relative mx-auto max-w-md flex-col rounded-lg bg-white p-4 shadow-sm md:max-w-lg lg:max-w-xl"
 >
+  <!-- Instructions Icon - Top Right -->
+  <button
+    (click)="onShowInstructions()"
+    class="absolute top-3 right-3 z-10 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-gray-100 text-gray-600 transition-colors hover:bg-gray-200"
+    title="Comment jouer ?"
+  >
+    <img
+      src="assets/icons/question-mark.svg"
+      alt="Comment jouer ?"
+      class="h-5 w-5"
+    />
+  </button>
   <!-- Instructions Modal -->
   <app-instructions-modal
     [isVisible]="showInstructions()"
@@ -18,7 +30,7 @@
 
   <!-- Loading Daily Word -->
   @if (!isDailyWordLoaded() && !hasDailyWordError()) {
-    <div class="mb-4 text-center">
+    <div class="p mt-2 text-center">
       <div
         class="inline-flex items-center gap-2 rounded-lg bg-blue-50 px-4 py-3"
       >
@@ -63,7 +75,7 @@
 
   <!-- Game Board -->
   <div
-    class="mb-4 flex flex-col gap-1 select-none sm:gap-2 md:gap-2"
+    class="mt-2 mb-4 flex flex-col gap-1 select-none sm:gap-2 md:gap-2"
     [ngClass]="{
       'gameboard-restore': isRestoringFromStorage(),
     }"
@@ -200,12 +212,4 @@
       }
     </div>
   }
-  <div class="mb-4 text-center">
-    <button
-      (click)="onShowInstructions()"
-      class="cursor-pointer text-xs text-blue-500 underline hover:text-blue-700"
-    >
-      Comment jouer ?
-    </button>
-  </div>
 </div>

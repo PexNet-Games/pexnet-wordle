@@ -32,17 +32,17 @@
 
     <!-- Guess Distribution -->
     <div>
-      <h3 class="mb-4 text-base font-bold text-gray-800">
+      <h3 class="mb-2 text-sm font-bold text-gray-800">
         Distribution des Tentatives
       </h3>
       @for (guess of ["1", "2", "3", "4", "5", "6"]; track guess) {
-        <div class="mb-2 flex items-center gap-2">
-          <span class="w-4 font-bold text-gray-800">{{ guess }}</span>
+        <div class="mb-1 flex items-center gap-2">
+          <span class="w-3 text-xs font-bold text-gray-800">{{ guess }}</span>
           <div
-            class="relative h-6 flex-1 overflow-hidden rounded-sm bg-gray-100"
+            class="relative h-4 flex-1 overflow-hidden rounded-sm bg-gray-100"
           >
             <div
-              class="flex h-full min-w-8 items-center justify-end rounded-sm bg-emerald-500 pr-2 text-sm font-bold text-white"
+              class="flex h-full min-w-6 items-center justify-end rounded-sm bg-emerald-500 pr-1 text-xs font-bold text-white"
               [style.width.%]="getDistributionPercentage(guess)"
             >
               {{ stats.guessDistribution[guess] || 0 }}
