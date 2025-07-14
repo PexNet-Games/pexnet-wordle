@@ -6,11 +6,18 @@ import {
 	HostListener,
 	inject,
 	signal,
+	computed,
+	OnInit,
 } from "@angular/core";
 import { InstructionsModalComponent } from "../instructions-modal/instructions-modal.component";
 import { MessageType, PopUpComponent } from "../pop-up/pop-up.component";
 import { removeAccents } from "../utils/accent-utils";
 import { GameStatus, WordGuess, WordleService } from "./wordle.service";
+import { GameStateService } from "../services/game-state.service";
+import { WordValidationService } from "../services/word-validation.service";
+import { WordleApiService } from "../services/wordle-api.service";
+import { HubIntegrationService } from "../services/hub-integration.service";
+import { GameStatsRequest } from "../models/wordle.interfaces";
 
 @Component({
 	selector: "app-wordle",
@@ -18,7 +25,8 @@ import { GameStatus, WordGuess, WordleService } from "./wordle.service";
 	templateUrl: "./wordle.component.html",
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class WordleComponent {
+export class WordleComponent implements OnInit {
+	// Use the existing WordleService signals
 	public guesses = signal<WordGuess[]>([]);
 	public currentGuess = signal<string[]>([]);
 	public gameStatus = signal<GameStatus>("playing");
@@ -29,9 +37,27 @@ export class WordleComponent {
 	public isRestoringFromStorage = signal<boolean>(false);
 	public restoredRows = signal<number[]>([]);
 
+	// Computed signals for new services integration
+	public currentUser = computed(() =>
+		this.hubIntegrationService.userDataWritable(),
+	);
+	public wordsLoaded = computed(() =>
+		this.wordValidationService.wordsLoadedWritable(),
+	);
+	public isDailyWordLoaded = computed(() =>
+		this.wordleService.isDailyWordLoaded(),
+	);
+	public hasDailyWordError = computed(() =>
+		this.wordleService.hasDailyWordError(),
+	);
+
 	public wordleService = inject(WordleService);
+	private wordValidationService = inject(WordValidationService);
+	private wordleApiService = inject(WordleApiService);
+	private hubIntegrationService = inject(HubIntegrationService);
 
 	constructor() {
+		// Sync with existing WordleService signals
 		effect(() => {
 			this.guesses.set(this.wordleService.guessesWritable());
 			this.currentGuess.set(
@@ -51,6 +77,47 @@ export class WordleComponent {
 			console.log("Game Status: ", this.wordleService.gameStatusWritable());
 			console.log("Guesses: ", this.wordleService.currentGuessWritable());
 		});
+
+		// Watch for game completion to handle backend integration
+		effect(() => {
+			const status = this.gameStatus();
+			if (status === "won" || status === "lost") {
+				this.handleGameCompletion();
+			}
+		});
+	}
+
+	ngOnInit() {
+		// Initialize hub integration for user data
+		this.hubIntegrationService.notifyGameStarted();
+		console.log("🎮 Wordle component initialized with hub integration");
+	}
+
+	private async handleGameCompletion() {
+		const user = this.currentUser();
+		if (!user?.discordId) return;
+
+		try {
+			const gameStats: GameStatsRequest = {
+				discordId: user.discordId,
+				wordId: this.wordleService.getCurrentWordId(), // Get the actual daily word ID
+				attempts: this.gameStatus() === "won" ? this.guesses().length : 0,
+				guesses: this.guesses().map((g) =>
+					g.letters.map((l) => l.letter).join(""),
+				),
+				solved: this.gameStatus() === "won",
+				timeToComplete: undefined, // TODO: Add timing if needed
+			};
+
+			await this.wordleApiService.saveGameStats(gameStats).toPromise();
+			this.hubIntegrationService.notifyGameCompleted();
+			console.log("✅ Game stats saved successfully");
+		} catch (error) {
+			console.warn(
+				"⚠️ Failed to save game stats (backend not available):",
+				error,
+			);
+		}
 	}
 
 	@HostListener("window:keydown", ["$event"])
@@ -91,6 +158,10 @@ export class WordleComponent {
 
 	onCloseInstructions(): void {
 		this.showInstructions.set(false);
+	}
+
+	onReload(): void {
+		window.location.reload();
 	}
 
 	getLetterForPosition(rowIndex: number, letterIndex: number): string {

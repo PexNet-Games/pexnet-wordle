@@ -1,10 +1,12 @@
 import { HttpClient } from "@angular/common/http";
 import { inject, Injectable, signal } from "@angular/core";
+import * as Models from "../models/wordle.interfaces";
 import { MESSAGES } from "../pop-up/pop-up.component";
 import {
-	LocalStorageService,
 	GameState,
+	LocalStorageService,
 } from "../services/local-storage.service";
+import { WordleApiService } from "../services/wordle-api.service";
 
 export interface LetterGuess {
 	letter: string;
@@ -27,10 +29,13 @@ export class WordleService {
 	private words: string[] = [];
 	private fullWords: string[] = [];
 	private currentWord = "";
+	private currentWordId = 0;
 	private currentGuess = "";
 	private guesses: WordGuess[] = [];
 	private currentRow = 0;
 	private gameStatus: GameStatus = "playing";
+	private dailyWordLoaded = signal(false);
+	private dailyWordError = signal(false);
 
 	public guessesWritable = signal<WordGuess[]>([]);
 	public currentGuessWritable = signal<string>("");
@@ -45,16 +50,19 @@ export class WordleService {
 
 	private http = inject(HttpClient);
 	private localStorageService = inject(LocalStorageService);
+	private wordleApiService = inject(WordleApiService);
 
 	constructor() {
 		console.log("🎮 WordleService constructor called");
 		this.initializeGame();
 		this.loadWords();
+		this.loadDailyWord();
 	}
 
 	private saveGameToStorage(): void {
 		const gameState: GameState = {
 			currentWord: this.currentWord,
+			wordId: this.currentWordId,
 			guesses: this.guesses,
 			currentGuess: this.currentGuess,
 			currentRow: this.currentRow,
@@ -67,16 +75,20 @@ export class WordleService {
 	private loadGameFromStorage(): boolean {
 		console.log("🔄 Attempting to load game from storage...");
 		const savedState = this.localStorageService.loadGameState();
-		if (savedState?.currentWord) {
+		if (savedState?.currentWord && savedState?.wordId) {
 			console.log("✅ Found saved game state, restoring...");
 
-			// Validate that the saved word exists in our word list
-			if (
-				this.words.length > 0 &&
-				!this.words.includes(savedState.currentWord)
-			) {
-				console.log("⚠️ Saved word not in current word list, starting new game");
+			// Validate that the saved word matches today's daily word
+			if (this.currentWordId > 0 && savedState.wordId !== this.currentWordId) {
+				console.log("⚠️ Saved word is not today's daily word, starting fresh");
+				this.localStorageService.clearGameState();
 				return false;
+			}
+
+			// If we haven't loaded today's word yet, we can restore any saved state
+			// The validation will happen when the daily word is loaded
+			if (this.currentWordId === 0) {
+				this.currentWordId = savedState.wordId;
 			}
 
 			// Trigger restoration animation
@@ -124,17 +136,12 @@ export class WordleService {
 
 	private async loadWords(): Promise<void> {
 		try {
-			// Load popular words for game selection
+			// Load popular words for validation only
 			this.http
 				.get(POPULAR_FRENCH_WORDS, { responseType: "text" })
 				.subscribe((text: string) => {
 					this.words = text.split("\n").map((word) => word.trim());
-					console.log("📝 Words loaded, checking for saved game state...");
-					// Only start a new game if there's no saved state to restore
-					if (!this.loadGameFromStorage()) {
-						console.log("🆕 No saved state found, starting new game...");
-						this.startNewGame();
-					}
+					console.log("📝 Popular words loaded for validation");
 				});
 
 			// Load full words list for validation
@@ -142,9 +149,14 @@ export class WordleService {
 				.get(FULL_FRENCH_WORDS, { responseType: "text" })
 				.subscribe((text: string) => {
 					this.fullWords = text.split("\n").map((word) => word.trim());
+					console.log("📚 Full word list loaded for validation");
 				});
 		} catch (error) {
 			console.error("Error loading words:", error);
+			this.showMessage({
+				text: "Erreur lors du chargement des dictionnaires de validation.",
+				type: "warning",
+			});
 		}
 	}
 
@@ -159,13 +171,15 @@ export class WordleService {
 		this.guessesWritable.set(this.guesses);
 	}
 
-	newGame(): void {
-		if (this.words.length === 0) return;
+	// Method to start a new daily game (replaces random game)
+	startDailyGame(): void {
+		if (!this.currentWord || this.currentWordId === 0) {
+			console.log("⚠️ Daily word not loaded yet, cannot start game");
+			return;
+		}
 
-		this.currentWord =
-			this.words[Math.floor(Math.random() * this.words.length)].toLowerCase();
 		console.log(
-			"🚀 ~ WordleService ~ newGame ~ this.currentWord:",
+			"🚀 ~ WordleService ~ startDailyGame ~ this.currentWord:",
 			this.currentWord,
 		);
 		this.currentGuess = "";
@@ -176,31 +190,20 @@ export class WordleService {
 		this.currentGuessWritable.set("");
 		this.gameStatusWritable.set("playing");
 
-		// Clear old game state and save new game
-		this.localStorageService.clearGameState();
+		// Save new game state
+		console.log("💾 Saving initial daily game state...");
 		this.saveGameToStorage();
 	}
 
-	startNewGame(): void {
-		if (this.words.length === 0) return;
-
-		this.currentWord =
-			this.words[Math.floor(Math.random() * this.words.length)].toLowerCase();
+	// Deprecated: Disable random new games - only daily words allowed
+	newGame(): void {
 		console.log(
-			"🚀 ~ WordleService ~ startNewGame ~ this.currentWord:",
-			this.currentWord,
+			"⚠️ Random new games are disabled. Only daily word games are allowed.",
 		);
-		this.currentGuess = "";
-		this.currentRow = 0;
-		this.gameStatus = "playing";
-
-		this.initializeGame();
-		this.currentGuessWritable.set("");
-		this.gameStatusWritable.set("playing");
-
-		// Save new game without clearing existing localStorage first
-		console.log("💾 Saving initial game state...");
-		this.saveGameToStorage();
+		this.showMessage({
+			text: "Seul le mot du jour est disponible. Revenez demain pour un nouveau défi !",
+			type: "info",
+		});
 	}
 
 	addLetter(letter: string): void {
@@ -327,7 +330,99 @@ export class WordleService {
 		}, 2000);
 	}
 
+	private loadDailyWord(): void {
+		console.log("🌅 Loading today's daily word...");
+		console.log(
+			"🔗 API URL:",
+			`${this.wordleApiService.getApiBase()}/wordle/daily-word`,
+		);
+
+		// Set a timeout to prevent infinite loading
+		const timeout = setTimeout(() => {
+			if (!this.dailyWordLoaded()) {
+				console.log("⏰ Daily word loading timeout");
+				this.dailyWordLoaded.set(true);
+				this.dailyWordError.set(true);
+				this.showMessage({
+					text: "Impossible de récupérer le mot du jour. Veuillez réessayer plus tard.",
+					type: "error",
+				});
+			}
+		}, 10000); // 10 second timeout
+
+		console.log("📡 Making API call to get daily word...");
+		this.wordleApiService.getDailyWord().subscribe({
+			next: (response: Models.DailyWordResponse) => {
+				clearTimeout(timeout);
+				console.log("✅ Daily word API response received:", response);
+				console.log("📊 Response type:", typeof response);
+				console.log("📋 Response keys:", Object.keys(response));
+
+				this.currentWord = response.word.toLowerCase();
+				this.currentWordId = response.wordId;
+				this.dailyWordLoaded.set(true);
+
+				console.log("✅ Daily word loaded successfully:", {
+					word: this.currentWord,
+					wordId: this.currentWordId,
+					loaded: this.dailyWordLoaded(),
+				});
+
+				// Check if we have a saved game for today
+				console.log("📝 Daily word loaded, checking for saved game state...");
+				if (!this.loadGameFromStorage()) {
+					console.log(
+						"🆕 No saved state found, starting fresh daily word game...",
+					);
+					this.startDailyGame();
+				} else {
+					// Validate that the restored game matches today's word
+					const savedState = this.localStorageService.loadGameState();
+					if (savedState && savedState.wordId !== this.currentWordId) {
+						console.log(
+							"⚠️ Saved game doesn't match today's word, starting fresh...",
+						);
+						this.localStorageService.clearGameState();
+						this.startDailyGame();
+					}
+				}
+			},
+			error: (error) => {
+				clearTimeout(timeout);
+				console.error("❌ Error loading daily word:", error);
+				console.error("❌ Error details:", {
+					status: error.status,
+					statusText: error.statusText,
+					message: error.message,
+					url: error.url,
+				});
+
+				// Set dailyWordLoaded to true to stop the spinner
+				this.dailyWordLoaded.set(true);
+				this.dailyWordError.set(true);
+
+				// Show error message - no fallback
+				this.showMessage({
+					text: "Impossible de récupérer le mot du jour. Veuillez vérifier votre connexion et réessayer.",
+					type: "error",
+				});
+			},
+		});
+	}
+
 	getCurrentWord(): string {
 		return this.currentWord;
+	}
+
+	getCurrentWordId(): number {
+		return this.currentWordId;
+	}
+
+	isDailyWordLoaded(): boolean {
+		return this.dailyWordLoaded();
+	}
+
+	hasDailyWordError(): boolean {
+		return this.dailyWordError();
 	}
 }

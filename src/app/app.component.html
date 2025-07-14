@@ -1,1 +1,20 @@
-<app-wordle></app-wordle>
+<div class="app-container">
+  <!-- Main Content -->
+  <main class="app-main">
+    <div class="game-section">
+      <app-wordle></app-wordle>
+    </div>
+
+    <aside class="sidebar">
+      <div class="sidebar-section">
+        <app-statistics
+          [discordId]="currentUser()?.discordId || null"
+        ></app-statistics>
+      </div>
+
+      <div class="sidebar-section">
+        <app-leaderboard></app-leaderboard>
+      </div>
+    </aside>
+  </main>
+</div>

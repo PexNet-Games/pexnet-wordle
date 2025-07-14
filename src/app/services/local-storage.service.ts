@@ -1,8 +1,9 @@
 import { Injectable } from "@angular/core";
-import { WordGuess, GameStatus } from "../wordle/wordle.service";
+import { GameStatus, WordGuess } from "../wordle/wordle.service";
 
 export interface GameState {
 	currentWord: string;
+	wordId: number;
 	guesses: WordGuess[];
 	currentGuess: string;
 	currentRow: number;
