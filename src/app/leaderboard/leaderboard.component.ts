@@ -1,83 +1,42 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, inject, signal } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { WordleApiService } from "../services/wordle-api.service";
 import { LeaderboardResponse } from "../models/wordle.interfaces";
+import { LeaderboardSkeletonComponent } from "./leaderboard-skeleton.component";
 
 @Component({
 	selector: "app-leaderboard",
 	standalone: true,
-	imports: [CommonModule],
-	template: `
-    <div class="leaderboard-container">
-      <h2>Classement Global</h2>
-      
-      @if (isLoading) {
-        <div class="loading">Chargement du classement...</div>
-      } @else if (leaderboard && leaderboard.users && leaderboard.users.length > 0) {
-        <div class="leaderboard-list">
-          @for (user of leaderboard.users; track user.discordId; let i = $index) {
-            <div class="leaderboard-item" [class.top-three]="i < 3">
-              <div class="rank">
-                @if (i === 0) {
-                  🥇
-                } @else if (i === 1) {
-                  🥈
-                } @else if (i === 2) {
-                  🥉
-                } @else {
-                  {{ i + 1 }}
-                }
-              </div>
-              <div class="user-info">
-                <div class="username">{{ user.username }}</div>
-                <div class="games-played">{{ user.totalGames }} parties</div>
-              </div>
-              <div class="stats">
-                <div class="win-rate">{{ user.winPercentage }}%</div>
-                <div class="streak">{{ user.currentStreak }} série</div>
-              </div>
-            </div>
-          }
-        </div>
-        
-        <button class="refresh-button" (click)="loadLeaderboard()">
-          Actualiser le Classement
-        </button>
-      } @else {
-        <div class="no-data">
-          <p>Aucune donnée de classement disponible</p>
-          <button (click)="loadLeaderboard()">Réessayer</button>
-        </div>
-      }
-    </div>
-  `,
-	styleUrls: ["./leaderboard.component.scss"],
+	imports: [CommonModule, LeaderboardSkeletonComponent],
+	templateUrl: "./leaderboard.component.html",
 })
 export class LeaderboardComponent implements OnInit {
-	leaderboard: LeaderboardResponse | null = null;
-	isLoading = true;
+	// Use signals for reactive state management
+	public leaderboard = signal<LeaderboardResponse | null>(null);
+	public isLoading = signal<boolean>(true);
 
-	constructor(private wordleApiService: WordleApiService) {}
+	// Inject services using the inject function
+	private wordleApiService = inject(WordleApiService);
 
 	ngOnInit() {
 		this.loadLeaderboard();
 	}
 
 	loadLeaderboard() {
-		this.isLoading = true;
+		this.isLoading.set(true);
 		this.wordleApiService.getLeaderboard(10).subscribe({
 			next: (data) => {
-				this.leaderboard = data;
-				this.isLoading = false;
+				this.leaderboard.set(data);
+				this.isLoading.set(false);
 			},
 			error: (error) => {
 				console.warn(
 					"Failed to load leaderboard (backend not available):",
 					error,
 				);
-				this.isLoading = false;
+				this.isLoading.set(false);
 				// Set demo data for development
-				this.leaderboard = {
+				this.leaderboard.set({
 					users: [
 						{
 							discordId: "1",
@@ -100,9 +59,37 @@ export class LeaderboardComponent implements OnInit {
 							currentStreak: 5,
 							totalGames: 22,
 						},
+						{
+							discordId: "4",
+							username: "WordWizard",
+							winPercentage: 78,
+							currentStreak: 3,
+							totalGames: 18,
+						},
+						{
+							discordId: "5",
+							username: "GuessGuru",
+							winPercentage: 75,
+							currentStreak: 7,
+							totalGames: 16,
+						},
+						{
+							discordId: "6",
+							username: "LetterLegend",
+							winPercentage: 72,
+							currentStreak: 2,
+							totalGames: 14,
+						},
 					],
-				};
+				});
 			},
 		});
+	}
+
+	// Get only the top 6 users for the compact layout
+	getTopSixUsers() {
+		const currentLeaderboard = this.leaderboard();
+		if (!currentLeaderboard || !currentLeaderboard.users) return [];
+		return currentLeaderboard.users.slice(0, 6);
 	}
 }

@@ -1,0 +1,66 @@
+@if (leaderboard(); as leaderboard) {
+  @if (leaderboard.users && leaderboard.users.length > 0) {
+    <div class="rounded-lg bg-white p-6 shadow-sm">
+      <h2 class="mb-4 text-xl font-bold text-gray-800">Classement</h2>
+      <!-- 2-column grid layout with 3 users per column -->
+      <div class="mb-4 grid grid-cols-2 gap-3">
+        @for (user of getTopSixUsers(); track user.discordId; let i = $index) {
+          <div
+            class="flex items-center rounded-md border border-gray-200 bg-gray-50 p-2"
+            [class.bg-yellow-100]="i < 3"
+            [class.border-yellow-300]="i < 3"
+          >
+            <div class="mr-2 w-6 text-center text-base font-bold">
+              @if (i === 0) {
+                🥇
+              } @else if (i === 1) {
+                🥈
+              } @else if (i === 2) {
+                🥉
+              } @else {
+                {{ i + 1 }}
+              }
+            </div>
+            <div class="min-w-0 flex-1">
+              <div class="truncate text-sm font-bold text-gray-800">
+                {{ user.username }}
+              </div>
+              <div class="text-xs text-gray-500">
+                {{ user.totalGames }} parties
+              </div>
+            </div>
+            <div class="ml-2 text-right">
+              <div class="text-sm font-bold text-emerald-600">
+                {{ user.winPercentage }}%
+              </div>
+              <div class="text-xs text-gray-500">
+                {{ user.currentStreak }} série
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+
+      <button
+        class="w-full cursor-pointer rounded-md bg-blue-500 px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-blue-600"
+        (click)="loadLeaderboard()"
+      >
+        Actualiser
+      </button>
+    </div>
+  } @else {
+    <div class="rounded-lg bg-white p-6 shadow-sm">
+      <div class="py-8 text-center text-gray-500">
+        <p class="mb-4">Aucune donnée de classement disponible</p>
+        <button
+          class="rounded-md bg-gray-500 px-4 py-2 text-white transition-colors hover:bg-gray-600"
+          (click)="loadLeaderboard()"
+        >
+          Réessayer
+        </button>
+      </div>
+    </div>
+  }
+} @else if (isLoading()) {
+  <app-leaderboard-skeleton></app-leaderboard-skeleton>
+}

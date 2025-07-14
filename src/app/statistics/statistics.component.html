@@ -1,0 +1,66 @@
+@if (stats(); as stats) {
+  <div class="mb-4 rounded-lg bg-white p-6 shadow-sm">
+    <h2 class="mb-4 text-xl font-bold text-gray-800">Vos Statistiques</h2>
+
+    <!-- Key Stats -->
+    <div class="mb-8 grid grid-cols-4 gap-4">
+      <div class="text-center">
+        <div class="text-3xl font-bold text-gray-800">
+          {{ stats.totalGames }}
+        </div>
+        <div class="mt-1 text-sm text-gray-500">Jouées</div>
+      </div>
+      <div class="text-center">
+        <div class="text-3xl font-bold text-gray-800">
+          {{ stats.winPercentage }}%
+        </div>
+        <div class="mt-1 text-sm text-gray-500">% Victoires</div>
+      </div>
+      <div class="text-center">
+        <div class="text-3xl font-bold text-gray-800">
+          {{ stats.currentStreak }}
+        </div>
+        <div class="mt-1 text-sm text-gray-500">Série Actuelle</div>
+      </div>
+      <div class="text-center">
+        <div class="text-3xl font-bold text-gray-800">
+          {{ stats.maxStreak }}
+        </div>
+        <div class="mt-1 text-sm text-gray-500">Série Max</div>
+      </div>
+    </div>
+
+    <!-- Guess Distribution -->
+    <div>
+      <h3 class="mb-4 text-base font-bold text-gray-800">
+        Distribution des Tentatives
+      </h3>
+      @for (guess of ["1", "2", "3", "4", "5", "6"]; track guess) {
+        <div class="mb-2 flex items-center gap-2">
+          <span class="w-4 font-bold text-gray-800">{{ guess }}</span>
+          <div
+            class="relative h-6 flex-1 overflow-hidden rounded-sm bg-gray-100"
+          >
+            <div
+              class="flex h-full min-w-8 items-center justify-end rounded-sm bg-emerald-500 pr-2 text-sm font-bold text-white"
+              [style.width.%]="getDistributionPercentage(guess)"
+            >
+              {{ stats.guessDistribution[guess] || 0 }}
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+} @else if (isLoading()) {
+  <div class="rounded-lg bg-white p-8 text-center text-gray-500 shadow-sm">
+    <p>Chargement des statistiques...</p>
+  </div>
+} @else {
+  <div class="rounded-lg bg-white p-8 text-center text-gray-500 shadow-sm">
+    <p>
+      Aucune statistique disponible pour le moment. Jouez une partie pour voir
+      vos stats !
+    </p>
+  </div>
+}

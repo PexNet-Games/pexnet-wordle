@@ -15,7 +15,6 @@ import { WordValidationService } from "./services/word-validation.service";
 		LeaderboardComponent,
 	],
 	templateUrl: "./app.component.html",
-	styleUrl: "./app.component.scss",
 })
 export class AppComponent implements OnInit {
 	// Inject services using the new pattern
