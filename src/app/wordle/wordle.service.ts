@@ -47,6 +47,7 @@ export class WordleService {
 	private localStorageService = inject(LocalStorageService);
 
 	constructor() {
+		console.log("🎮 WordleService constructor called");
 		this.initializeGame();
 		this.loadWords();
 	}
@@ -64,8 +65,20 @@ export class WordleService {
 	}
 
 	private loadGameFromStorage(): boolean {
+		console.log("🔄 Attempting to load game from storage...");
 		const savedState = this.localStorageService.loadGameState();
 		if (savedState?.currentWord) {
+			console.log("✅ Found saved game state, restoring...");
+
+			// Validate that the saved word exists in our word list
+			if (
+				this.words.length > 0 &&
+				!this.words.includes(savedState.currentWord)
+			) {
+				console.log("⚠️ Saved word not in current word list, starting new game");
+				return false;
+			}
+
 			// Trigger restoration animation
 			this.isRestoringFromStorageWritable.set(true);
 
@@ -92,7 +105,7 @@ export class WordleService {
 			}
 			this.restoredRowsWritable.set(restoredRows);
 
-			console.log("Game state restored from localStorage");
+			console.log("✅ Game state restored from localStorage");
 
 			// Stop animation after all letters are restored
 			setTimeout(
@@ -105,6 +118,7 @@ export class WordleService {
 
 			return true;
 		}
+		console.log("🚫 No saved game state found");
 		return false;
 	}
 
@@ -115,9 +129,11 @@ export class WordleService {
 				.get(POPULAR_FRENCH_WORDS, { responseType: "text" })
 				.subscribe((text: string) => {
 					this.words = text.split("\n").map((word) => word.trim());
+					console.log("📝 Words loaded, checking for saved game state...");
 					// Only start a new game if there's no saved state to restore
 					if (!this.loadGameFromStorage()) {
-						this.newGame();
+						console.log("🆕 No saved state found, starting new game...");
+						this.startNewGame();
 					}
 				});
 
@@ -162,6 +178,28 @@ export class WordleService {
 
 		// Clear old game state and save new game
 		this.localStorageService.clearGameState();
+		this.saveGameToStorage();
+	}
+
+	startNewGame(): void {
+		if (this.words.length === 0) return;
+
+		this.currentWord =
+			this.words[Math.floor(Math.random() * this.words.length)].toLowerCase();
+		console.log(
+			"🚀 ~ WordleService ~ startNewGame ~ this.currentWord:",
+			this.currentWord,
+		);
+		this.currentGuess = "";
+		this.currentRow = 0;
+		this.gameStatus = "playing";
+
+		this.initializeGame();
+		this.currentGuessWritable.set("");
+		this.gameStatusWritable.set("playing");
+
+		// Save new game without clearing existing localStorage first
+		console.log("💾 Saving initial game state...");
 		this.saveGameToStorage();
 	}
 
