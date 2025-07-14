@@ -85,3 +85,70 @@
 .modal-content.closing {
   animation: modalSlideOut 0.3s ease-out;
 }
+
+@keyframes letterRestore {
+  0% {
+    opacity: 0;
+    transform: scale(0.5) rotateY(180deg);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.1) rotateY(90deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotateY(0deg);
+  }
+}
+
+@keyframes letterRestoreWave {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.8);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(-5px) scale(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0px) scale(1);
+  }
+}
+
+.letter-restore {
+  animation: letterRestore 0.6s ease-out forwards;
+}
+
+.letter-restore-wave {
+  animation: letterRestoreWave 0.5s ease-out forwards;
+}
+
+/* Staggered animation delays for wave effect */
+.letter-restore-delay-0 { animation-delay: 0ms; }
+.letter-restore-delay-1 { animation-delay: 50ms; }
+.letter-restore-delay-2 { animation-delay: 100ms; }
+.letter-restore-delay-3 { animation-delay: 150ms; }
+.letter-restore-delay-4 { animation-delay: 200ms; }
+
+.row-restore-delay-0 { animation-delay: 0ms; }
+.row-restore-delay-1 { animation-delay: 300ms; }
+.row-restore-delay-2 { animation-delay: 600ms; }
+.row-restore-delay-3 { animation-delay: 900ms; }
+.row-restore-delay-4 { animation-delay: 1200ms; }
+.row-restore-delay-5 { animation-delay: 1500ms; }
+
+@keyframes gameboardRestore {
+  0% {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.gameboard-restore {
+  animation: gameboardRestore 0.4s ease-out forwards;
+}

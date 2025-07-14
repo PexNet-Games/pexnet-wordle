@@ -1,6 +1,10 @@
 import { HttpClient } from "@angular/common/http";
 import { inject, Injectable, signal } from "@angular/core";
 import { MESSAGES } from "../pop-up/pop-up.component";
+import {
+	LocalStorageService,
+	GameState,
+} from "../services/local-storage.service";
 
 export interface LetterGuess {
 	letter: string;
@@ -36,12 +40,72 @@ export class WordleService {
 	public messageTypeWritable = signal<"error" | "success" | "warning" | "info">(
 		"error",
 	);
+	public isRestoringFromStorageWritable = signal<boolean>(false);
+	public restoredRowsWritable = signal<number[]>([]);
 
 	private http = inject(HttpClient);
+	private localStorageService = inject(LocalStorageService);
 
 	constructor() {
-		this.loadWords();
 		this.initializeGame();
+		this.loadWords();
+	}
+
+	private saveGameToStorage(): void {
+		const gameState: GameState = {
+			currentWord: this.currentWord,
+			guesses: this.guesses,
+			currentGuess: this.currentGuess,
+			currentRow: this.currentRow,
+			gameStatus: this.gameStatus,
+			timestamp: Date.now(),
+		};
+		this.localStorageService.saveGameState(gameState);
+	}
+
+	private loadGameFromStorage(): boolean {
+		const savedState = this.localStorageService.loadGameState();
+		if (savedState?.currentWord) {
+			// Trigger restoration animation
+			this.isRestoringFromStorageWritable.set(true);
+
+			this.currentWord = savedState.currentWord;
+			this.guesses = savedState.guesses;
+			this.currentGuess = savedState.currentGuess;
+			this.currentRow = savedState.currentRow;
+			this.gameStatus = savedState.gameStatus;
+
+			// Update signals
+			this.guessesWritable.set([...this.guesses]);
+			this.currentGuessWritable.set(this.currentGuess);
+			this.gameStatusWritable.set(this.gameStatus);
+
+			// Find rows that have been completed (not empty)
+			const restoredRows: number[] = [];
+			for (let i = 0; i < this.guesses.length; i++) {
+				const hasContent = this.guesses[i].letters.some(
+					(letter) => letter.letter && letter.status !== "empty",
+				);
+				if (hasContent) {
+					restoredRows.push(i);
+				}
+			}
+			this.restoredRowsWritable.set(restoredRows);
+
+			console.log("Game state restored from localStorage");
+
+			// Stop animation after all letters are restored
+			setTimeout(
+				() => {
+					this.isRestoringFromStorageWritable.set(false);
+					this.restoredRowsWritable.set([]);
+				},
+				2000 + restoredRows.length * 300,
+			); // Base delay + row animation delays
+
+			return true;
+		}
+		return false;
 	}
 
 	private async loadWords(): Promise<void> {
@@ -51,7 +115,10 @@ export class WordleService {
 				.get(POPULAR_FRENCH_WORDS, { responseType: "text" })
 				.subscribe((text: string) => {
 					this.words = text.split("\n").map((word) => word.trim());
-					this.newGame();
+					// Only start a new game if there's no saved state to restore
+					if (!this.loadGameFromStorage()) {
+						this.newGame();
+					}
 				});
 
 			// Load full words list for validation
@@ -92,6 +159,10 @@ export class WordleService {
 		this.initializeGame();
 		this.currentGuessWritable.set("");
 		this.gameStatusWritable.set("playing");
+
+		// Clear old game state and save new game
+		this.localStorageService.clearGameState();
+		this.saveGameToStorage();
 	}
 
 	addLetter(letter: string): void {
@@ -105,6 +176,7 @@ export class WordleService {
 
 		this.currentGuess += letter.toLowerCase();
 		this.updateCurrentGuessDisplay();
+		this.saveGameToStorage();
 	}
 
 	removeLetter(): void {
@@ -112,6 +184,7 @@ export class WordleService {
 
 		this.currentGuess = this.currentGuess.slice(0, -1);
 		this.updateCurrentGuessDisplay();
+		this.saveGameToStorage();
 	}
 
 	private isValidWord(word: string): boolean {
@@ -159,6 +232,16 @@ export class WordleService {
 		this.guessesWritable.set([...this.guesses]);
 		this.currentGuessWritable.set("");
 		this.gameStatusWritable.set(this.gameStatus);
+
+		// Save game state after each guess
+		this.saveGameToStorage();
+
+		// Clear localStorage when game is completed
+		if (this.gameStatus !== "playing") {
+			setTimeout(() => {
+				this.localStorageService.clearGameState();
+			}, 5000); // Clear after 5 seconds to allow user to see final state
+		}
 	}
 
 	private evaluateGuess(guess: string): WordGuess {

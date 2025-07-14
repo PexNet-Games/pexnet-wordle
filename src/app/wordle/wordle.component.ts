@@ -26,6 +26,8 @@ export class WordleComponent {
 	public invalidWordMessage = signal<string>("");
 	public messageType = signal<MessageType>("error");
 	public showInstructions = signal<boolean>(false);
+	public isRestoringFromStorage = signal<boolean>(false);
+	public restoredRows = signal<number[]>([]);
 
 	public wordleService = inject(WordleService);
 
@@ -41,6 +43,10 @@ export class WordleComponent {
 				this.wordleService.invalidWordMessageWritable(),
 			);
 			this.messageType.set(this.wordleService.messageTypeWritable());
+			this.isRestoringFromStorage.set(
+				this.wordleService.isRestoringFromStorageWritable(),
+			);
+			this.restoredRows.set(this.wordleService.restoredRowsWritable());
 			console.log("Current Guess: ", this.wordleService.guessesWritable());
 			console.log("Game Status: ", this.wordleService.gameStatusWritable());
 			console.log("Guesses: ", this.wordleService.currentGuessWritable());
@@ -151,5 +157,28 @@ export class WordleComponent {
 			rowIndex === currentRow &&
 			letterIndex === this.currentGuess().length
 		);
+	}
+
+	shouldAnimateRestore(rowIndex: number, letterIndex: number): boolean {
+		if (!this.isRestoringFromStorage()) return false;
+
+		const restoredRows = this.restoredRows();
+		const isRestoredRow = restoredRows.includes(rowIndex);
+		const hasLetter = this.getLetterForPosition(rowIndex, letterIndex) !== "";
+
+		return isRestoredRow && hasLetter;
+	}
+
+	getRestoreAnimationClass(rowIndex: number, letterIndex: number): string {
+		if (!this.shouldAnimateRestore(rowIndex, letterIndex)) return "";
+
+		return `letter-restore-wave letter-restore-delay-${letterIndex} row-restore-delay-${rowIndex}`;
+	}
+
+	getRestorationMessage(): string {
+		const restoredRows = this.restoredRows();
+		if (restoredRows.length === 0) return "";
+
+		return `Restauration en cours... ${restoredRows.length} ligne${restoredRows.length > 1 ? "s" : ""} récupérée${restoredRows.length > 1 ? "s" : ""}`;
 	}
 }
