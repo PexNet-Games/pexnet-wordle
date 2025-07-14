@@ -18,10 +18,16 @@ import { WordValidationService } from "../services/word-validation.service";
 import { WordleApiService } from "../services/wordle-api.service";
 import { HubIntegrationService } from "../services/hub-integration.service";
 import { GameStatsRequest } from "../models/wordle.interfaces";
+import { WordleSkeletonComponent } from "./wordle-skeleton.component";
 
 @Component({
 	selector: "app-wordle",
-	imports: [CommonModule, PopUpComponent, InstructionsModalComponent],
+	imports: [
+		CommonModule,
+		PopUpComponent,
+		InstructionsModalComponent,
+		WordleSkeletonComponent,
+	],
 	templateUrl: "./wordle.component.html",
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })

@@ -9,11 +9,12 @@ import {
 import { CommonModule } from "@angular/common";
 import { WordleApiService } from "../services/wordle-api.service";
 import { UserStatsResponse } from "../models/wordle.interfaces";
+import { StatisticsSkeletonComponent } from "./statistics-skeleton.component";
 
 @Component({
 	selector: "app-statistics",
 	standalone: true,
-	imports: [CommonModule],
+	imports: [CommonModule, StatisticsSkeletonComponent],
 	templateUrl: "./statistics.component.html",
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })

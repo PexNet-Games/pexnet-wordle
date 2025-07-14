@@ -53,9 +53,7 @@
     </div>
   </div>
 } @else if (isLoading()) {
-  <div class="rounded-lg bg-white p-8 text-center text-gray-500 shadow-sm">
-    <p>Chargement des statistiques...</p>
-  </div>
+  <app-statistics-skeleton></app-statistics-skeleton>
 } @else {
   <div class="rounded-lg bg-white p-8 text-center text-gray-500 shadow-sm">
     <p>
