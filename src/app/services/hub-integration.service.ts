@@ -44,6 +44,11 @@ export class HubIntegrationService {
 		this.sendMessageToHub({
 			type: "REQUEST_USER_DATA",
 		});
+
+		// Also request current theme immediately
+		this.sendMessageToHub({
+			type: "REQUEST_THEME",
+		});
 	}
 
 	// Handle incoming messages from hub
