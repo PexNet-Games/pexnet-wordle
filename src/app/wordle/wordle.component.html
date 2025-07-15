@@ -82,22 +82,22 @@
             let letterIndex = $index
           ) {
             <div
-              class="flex aspect-square h-12 w-12 items-center justify-center rounded-sm border-3 text-lg font-bold uppercase transition-colors duration-300 sm:h-14 sm:w-14 sm:text-xl md:h-16 md:w-16 md:text-2xl lg:text-3xl"
+              class="flex aspect-square h-12 w-12 items-center justify-center rounded-sm border-3 text-lg font-bold uppercase transition-colors duration-300 sm:h-14 sm:w-14 sm:text-xl md:h-16 md:w-16 md:text-2xl lg:text-3xl dark:text-white"
               [ngClass]="{
-                'border-gray-300 bg-white text-gray-700 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300':
+                'border-gray-300 bg-white text-gray-700 dark:border-gray-600 dark:bg-gray-800 dark:text-white':
                   getStatusForPosition(rowIndex, letterIndex) === 'empty' &&
                   !isCurrentPosition(rowIndex, letterIndex),
-                'border-blue-500 bg-blue-50 text-gray-700 dark:bg-blue-900/30 dark:text-gray-300':
+                'border-blue-500 bg-blue-50 text-gray-700 dark:bg-blue-900/30 dark:text-white':
                   getStatusForPosition(rowIndex, letterIndex) === 'empty' &&
                   isCurrentPosition(rowIndex, letterIndex),
-                'border-gray-500 bg-white text-gray-700 dark:border-gray-400 dark:bg-gray-800 dark:text-gray-300':
+                'border-gray-500 bg-white text-gray-700 dark:border-gray-400 dark:bg-gray-800 dark:text-white':
                   getStatusForPosition(rowIndex, letterIndex) === 'empty' &&
                   getLetterForPosition(rowIndex, letterIndex),
-                'border-green-500 bg-green-500 text-white':
+                'border-emerald-500 bg-emerald-500 text-white dark:text-white':
                   getStatusForPosition(rowIndex, letterIndex) === 'correct',
-                'border-yellow-500 bg-yellow-500 text-white':
+                'border-yellow-500 bg-yellow-500 text-white dark:text-white':
                   getStatusForPosition(rowIndex, letterIndex) === 'present',
-                'border-gray-500 bg-gray-500 text-white':
+                'border-gray-500 bg-gray-500 text-white dark:text-white':
                   getStatusForPosition(rowIndex, letterIndex) === 'absent',
               }"
               [class]="getRestoreAnimationClass(rowIndex, letterIndex)"
@@ -182,17 +182,20 @@
                       ? onBackspace()
                       : onLetterClick(key)
                 "
-                class="h-10 min-w-6 cursor-pointer rounded text-sm font-semibold transition-colors duration-200 sm:h-12 sm:min-w-8 sm:text-base md:h-14 md:min-w-10 md:text-lg lg:h-16 lg:min-w-10 lg:text-xl"
+                class="h-10 min-w-6 cursor-pointer rounded text-sm font-semibold transition-colors duration-200 sm:h-12 sm:min-w-8 sm:text-base md:h-14 md:min-w-10 md:text-lg lg:h-16 lg:min-w-10 lg:text-xl dark:text-white"
                 [ngClass]="{
-                  'bg-gray-400 text-white hover:bg-gray-500':
+                  'bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-gray-500 dark:!text-white dark:hover:bg-gray-400':
+                    getKeyStatus(key) === 'unused' ||
+                    key === 'ENTER' ||
+                    key === 'BACKSPACE',
+                  'bg-emerald-500 text-white hover:bg-emerald-600 dark:text-white dark:hover:bg-emerald-400':
+                    getKeyStatus(key) === 'correct',
+                  'bg-yellow-500 text-white hover:bg-yellow-600 dark:text-white dark:hover:bg-yellow-400':
+                    getKeyStatus(key) === 'present',
+                  'bg-gray-500 !text-white dark:bg-gray-700':
+                    getKeyStatus(key) === 'absent',
+                  'px-4 sm:px-2 md:px-6 lg:px-6':
                     key === 'ENTER' || key === 'BACKSPACE',
-                  'bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600':
-                    getKeyStatus(key) === 'unused' &&
-                    key !== 'ENTER' &&
-                    key !== 'BACKSPACE',
-                  'bg-green-500 !text-white': getKeyStatus(key) === 'correct',
-                  'bg-yellow-500 !text-white': getKeyStatus(key) === 'present',
-                  'bg-gray-600 text-gray-300': getKeyStatus(key) === 'absent',
                 }"
                 [disabled]="status !== 'playing'"
               >
@@ -200,13 +203,13 @@
                   <img
                     src="/icons/backspace.svg"
                     alt="{{ key }}"
-                    class="mx-auto h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6"
+                    class="mx-auto h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 dark:brightness-0 dark:invert"
                   />
                 } @else if (key === "ENTER") {
                   <img
                     src="/icons/enter.svg"
                     alt="{{ key }}"
-                    class="mx-auto h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5"
+                    class="mx-auto h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5 dark:brightness-0 dark:invert"
                   />
                 } @else {
                   <span>{{ key }}</span>

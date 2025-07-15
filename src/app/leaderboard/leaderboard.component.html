@@ -14,7 +14,9 @@
             [class.border-yellow-300]="i < 3"
             [class.dark:border-yellow-600]="i < 3"
           >
-            <div class="mr-2 w-6 text-center text-base font-bold">
+            <div
+              class="mr-2 w-6 text-center text-base font-bold !text-gray-800 dark:!text-gray-200"
+            >
               @if (i === 0) {
                 🥇
               } @else if (i === 1) {
