@@ -41,6 +41,15 @@
                 body.className =
                   "bg-slate-50 text-gray-900 transition-colors duration-200";
               }
+
+              // Send confirmation that theme was applied
+              window.parent.postMessage(
+                {
+                  type: "THEME_APPLIED",
+                  theme: theme,
+                },
+                "http://localhost:4200",
+              );
             }
           });
 

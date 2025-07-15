@@ -9,6 +9,7 @@ import { ThemeService } from "./theme.service";
 export class HubIntegrationService {
 	public userDataWritable = signal<HubUserData | null>(null);
 	public gameCompletedWritable = signal<boolean>(false);
+	public componentReady = signal<boolean>(false); // Track when component is fully loaded
 
 	private messageListener: ((event: MessageEvent) => void) | null = null;
 	private themeService = inject(ThemeService);
@@ -67,6 +68,12 @@ export class HubIntegrationService {
 			case "THEME_UPDATE":
 				if (message.theme === 'light' || message.theme === 'dark') {
 					this.themeService.setThemeFromParent(message.theme);
+
+					// Send confirmation that theme was applied
+					this.sendMessageToHub({
+						type: "THEME_APPLIED",
+						theme: message.theme,
+					});
 				}
 				break;
 
@@ -104,6 +111,14 @@ export class HubIntegrationService {
 	// Reset game completed flag
 	resetGameCompleted() {
 		this.gameCompletedWritable.set(false);
+	}
+
+	// Notify hub that component is ready
+	notifyComponentReady() {
+		this.componentReady.set(true);
+		this.sendMessageToHub({
+			type: "COMPONENT_READY",
+		});
 	}
 
 	// Get current user data

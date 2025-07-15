@@ -2,6 +2,7 @@ import { CommonModule } from "@angular/common";
 import {
 	Component,
 	OnInit,
+	AfterViewInit,
 	inject,
 	computed,
 	effect,
@@ -42,7 +43,7 @@ import { GameEventsService } from "./services/game-events.service";
 	`,
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, AfterViewInit {
 	// Inject services using the new pattern
 	private hubIntegrationService = inject(HubIntegrationService);
 	private wordValidationService = inject(WordValidationService);
@@ -88,6 +89,14 @@ export class AppComponent implements OnInit {
 		// Initialize hub integration - user data will be automatically requested in service constructor
 		this.hubIntegrationService.notifyGameStarted();
 		console.log("🚀 App component initialized with signal-based services");
+	}
+
+	ngAfterViewInit() {
+		// Notify parent that component is fully loaded after view initialization
+		setTimeout(() => {
+			this.hubIntegrationService.notifyComponentReady();
+			console.log("🎯 Component fully loaded and ready");
+		}, 500); // Small delay to ensure everything is rendered
 	}
 
 	// Method to refresh stats and leaderboard after game completion
