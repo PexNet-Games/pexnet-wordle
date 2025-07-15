@@ -154,14 +154,20 @@ export class WordleComponent implements OnInit {
 
 		try {
 			// Calculate actual number of attempts (non-empty guesses)
-			const actualAttempts = this.guesses().filter(guess => 
-				guess.letters.some(letter => letter.letter && letter.status !== "empty")
+			const actualAttempts = this.guesses().filter((guess) =>
+				guess.letters.some(
+					(letter) => letter.letter && letter.status !== "empty",
+				),
 			).length;
 
 			// Filter out empty guesses for the guesses array
 			const validGuesses = this.guesses()
-				.filter(guess => guess.letters.some(letter => letter.letter && letter.status !== "empty"))
-				.map(g => g.letters.map(l => l.letter).join(""));
+				.filter((guess) =>
+					guess.letters.some(
+						(letter) => letter.letter && letter.status !== "empty",
+					),
+				)
+				.map((g) => g.letters.map((l) => l.letter).join(""));
 
 			const gameStats: GameStatsRequest = {
 				discordId: user.discordId,
