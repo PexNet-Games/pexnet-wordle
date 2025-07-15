@@ -48,6 +48,16 @@ export class ThemeService {
 		this.setTheme(next);
 	}
 
+	/**
+	 * Set theme from parent iframe message
+	 * This method is called when the iframe receives a theme update from its parent
+	 */
+	setThemeFromParent(theme: Theme): void {
+		this.currentTheme.set(theme);
+		// Don't save to localStorage when set from parent to avoid conflicts
+		// The parent app manages the theme persistence
+	}
+
 	private applyTheme(theme: Theme): void {
 		const html = this.document.documentElement;
 		

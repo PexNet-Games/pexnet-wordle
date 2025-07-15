@@ -1,6 +1,7 @@
-import { Injectable, signal } from "@angular/core";
+import { Injectable, signal, inject } from "@angular/core";
 import { environment } from "../../environments/environment";
 import type { HubUserData } from "../models/wordle.interfaces";
+import { ThemeService } from "./theme.service";
 
 @Injectable({
 	providedIn: "root",
@@ -10,6 +11,7 @@ export class HubIntegrationService {
 	public gameCompletedWritable = signal<boolean>(false);
 
 	private messageListener: ((event: MessageEvent) => void) | null = null;
+	private themeService = inject(ThemeService);
 
 	constructor() {
 		this.setupMessageListener();
@@ -55,6 +57,12 @@ export class HubIntegrationService {
 					username: message.username,
 					avatar: message.avatar,
 				});
+				break;
+
+			case "THEME_UPDATE":
+				if (message.theme === 'light' || message.theme === 'dark') {
+					this.themeService.setThemeFromParent(message.theme);
+				}
 				break;
 
 			default:
