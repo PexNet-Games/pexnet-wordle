@@ -13,7 +13,7 @@ import { CommonModule } from "@angular/common";
           Ce jeu nécessite une authentification Discord via le Hub PexNet.
         </p>
         <p class="instruction">
-          Veuillez accéder à ce jeu via l'application officielle PexNet Hub.
+          Veuillez accéder à ce jeu via l'application officielle PexNet.
         </p>
         <div class="icon">🎮</div>
       </div>
