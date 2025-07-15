@@ -153,16 +153,26 @@ export class WordleComponent implements OnInit {
 		}
 
 		try {
+			// Calculate actual number of attempts (non-empty guesses)
+			const actualAttempts = this.guesses().filter(guess => 
+				guess.letters.some(letter => letter.letter && letter.status !== "empty")
+			).length;
+
+			// Filter out empty guesses for the guesses array
+			const validGuesses = this.guesses()
+				.filter(guess => guess.letters.some(letter => letter.letter && letter.status !== "empty"))
+				.map(g => g.letters.map(l => l.letter).join(""));
+
 			const gameStats: GameStatsRequest = {
 				discordId: user.discordId,
-				wordId: this.wordleService.getCurrentWordId(), // Get the actual daily word ID
-				attempts: this.gameStatus() === "won" ? this.guesses().length : 0,
-				guesses: this.guesses().map((g) =>
-					g.letters.map((l) => l.letter).join(""),
-				),
+				wordId: this.wordleService.getCurrentWordId(),
+				attempts: this.gameStatus() === "won" ? actualAttempts : 0,
+				guesses: validGuesses,
 				solved: this.gameStatus() === "won",
 				timeToComplete: undefined, // TODO: Add timing if needed
 			};
+
+			console.log("📊 Sending game stats:", gameStats);
 
 			await this.wordleApiService.saveGameStats(gameStats).toPromise();
 
