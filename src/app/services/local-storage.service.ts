@@ -9,6 +9,7 @@ export interface GameState {
 	currentRow: number;
 	gameStatus: GameStatus;
 	timestamp: number;
+	statsSaved?: boolean; // Add flag to track if stats were already saved
 }
 
 @Injectable({

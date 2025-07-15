@@ -52,6 +52,9 @@ export class WordleService {
 	private localStorageService = inject(LocalStorageService);
 	private wordleApiService = inject(WordleApiService);
 
+	// Flag to track if stats were already saved
+	private statsAlreadySaved = false;
+
 	constructor() {
 		console.log("🎮 WordleService constructor called");
 		this.initializeGame();
@@ -68,6 +71,7 @@ export class WordleService {
 			currentRow: this.currentRow,
 			gameStatus: this.gameStatus,
 			timestamp: Date.now(),
+			statsSaved: this.statsAlreadySaved,
 		};
 		this.localStorageService.saveGameState(gameState);
 	}
@@ -101,6 +105,7 @@ export class WordleService {
 			this.currentGuess = savedState.currentGuess;
 			this.currentRow = savedState.currentRow;
 			this.gameStatus = savedState.gameStatus;
+			this.statsAlreadySaved = savedState.statsSaved || false; // Restore stats saved flag
 
 			// Update signals
 			this.guessesWritable.set([...this.guesses]);
@@ -187,6 +192,7 @@ export class WordleService {
 		this.currentGuess = "";
 		this.currentRow = 0;
 		this.gameStatus = "playing";
+		this.statsAlreadySaved = false; // Reset stats flag for new game
 
 		this.initializeGame();
 		this.currentGuessWritable.set("");
@@ -443,7 +449,19 @@ export class WordleService {
 
 		console.log("🔄 Starting new daily game - new word available");
 		this.localStorageService.clearGameState();
+		this.statsAlreadySaved = false; // Reset stats flag
 		this.startDailyGame();
 		return true;
+	}
+
+	// Add method to mark stats as saved
+	markStatsAsSaved(): void {
+		this.statsAlreadySaved = true;
+		this.saveGameToStorage();
+	}
+
+	// Add method to check if stats were already saved
+	areStatsAlreadySaved(): boolean {
+		return this.statsAlreadySaved;
 	}
 }

@@ -62,6 +62,9 @@ export class WordleComponent implements OnInit {
 	private wordleApiService = inject(WordleApiService);
 	private hubIntegrationService = inject(HubIntegrationService);
 
+	private isInitializing = true;
+	private hasProcessedInitialGameState = false;
+
 	constructor() {
 		// Sync with existing WordleService signals
 		effect(() => {
@@ -88,7 +91,10 @@ export class WordleComponent implements OnInit {
 		effect(() => {
 			const status = this.gameStatus();
 			if (status === "won" || status === "lost") {
-				this.handleGameCompletion();
+				// Delay to ensure all initialization is complete
+				setTimeout(() => {
+					this.handleGameCompletion();
+				}, 100);
 			}
 		});
 	}
@@ -97,11 +103,54 @@ export class WordleComponent implements OnInit {
 		// Initialize hub integration for user data
 		this.hubIntegrationService.notifyGameStarted();
 		console.log("🎮 Wordle component initialized with hub integration");
+
+		// Mark initialization as complete after a delay to ensure all effects have run
+		setTimeout(() => {
+			this.isInitializing = false;
+			console.log("🎯 Component initialization complete");
+		}, 1000);
 	}
 
 	private async handleGameCompletion() {
+		console.log("🎯 handleGameCompletion called", {
+			initializing: this.isInitializing,
+			restoring: this.isRestoringFromStorage(),
+			processed: this.hasProcessedInitialGameState,
+			statsAlreadySaved: this.wordleService.areStatsAlreadySaved(),
+		});
+
 		const user = this.currentUser();
-		if (!user?.discordId) return;
+		if (!user?.discordId) {
+			console.log("🚫 No user discordId, skipping stats save");
+			return;
+		}
+
+		// Don't save stats if we're still initializing the component
+		if (this.isInitializing) {
+			console.log("🔄 Component still initializing, skipping stats save");
+			return;
+		}
+
+		// Don't save stats if we're currently restoring from storage
+		if (this.isRestoringFromStorage()) {
+			console.log(
+				"🔄 Game completion detected during restoration, skipping stats save",
+			);
+			return;
+		}
+
+		// Don't save stats for the initial game state (restored or fresh)
+		if (!this.hasProcessedInitialGameState) {
+			console.log("🔄 Initial game state detected, skipping stats save");
+			this.hasProcessedInitialGameState = true;
+			return;
+		}
+
+		// Check if stats were already saved to prevent duplicate calls
+		if (this.wordleService.areStatsAlreadySaved()) {
+			console.log("📊 Stats already saved for this game, skipping API call");
+			return;
+		}
 
 		try {
 			const gameStats: GameStatsRequest = {
@@ -116,6 +165,10 @@ export class WordleComponent implements OnInit {
 			};
 
 			await this.wordleApiService.saveGameStats(gameStats).toPromise();
+
+			// Mark stats as saved to prevent duplicate calls
+			this.wordleService.markStatsAsSaved();
+
 			this.hubIntegrationService.notifyGameCompleted();
 			console.log("✅ Game stats saved successfully");
 		} catch (error) {
@@ -142,16 +195,20 @@ export class WordleComponent implements OnInit {
 		}
 	}
 
+	onEnter(): void {
+		// Mark that we've processed the initial state when user starts playing
+		this.hasProcessedInitialGameState = true;
+		this.wordleService.submitGuess();
+	}
+
 	onLetterClick(letter: string): void {
+		// Mark that we've processed the initial state when user starts playing
+		this.hasProcessedInitialGameState = true;
 		this.wordleService.addLetter(letter);
 	}
 
 	onBackspace(): void {
 		this.wordleService.removeLetter();
-	}
-
-	onEnter(): void {
-		this.wordleService.submitGuess();
 	}
 
 	onNewGame(): void {
