@@ -1,10 +1,10 @@
 <div
-  class="relative mx-auto max-w-md flex-col rounded-lg bg-white p-4 shadow-sm md:max-w-lg lg:max-w-xl"
+  class="relative mx-auto max-w-md flex-col rounded-lg bg-white p-4 shadow-sm md:max-w-lg lg:max-w-xl dark:bg-gray-800"
 >
   <!-- Instructions Icon - Top Right -->
   <button
     (click)="onShowInstructions()"
-    class="absolute top-3 right-3 z-10 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-gray-100 text-gray-600 transition-colors hover:bg-gray-200"
+    class="absolute top-3 right-3 z-10 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-gray-100 text-gray-600 transition-colors hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
     title="Comment jouer ?"
   >
     <img
@@ -13,20 +13,19 @@
       class="h-5 w-5"
     />
   </button>
+
   <!-- Instructions Modal -->
   <app-instructions-modal
     [isVisible]="showInstructions()"
     (close)="onCloseInstructions()"
-  >
-  </app-instructions-modal>
+  ></app-instructions-modal>
 
   <!-- Error Popup Component -->
   <app-pop-up
     [message]="invalidWordMessage()"
     [isVisible]="invalidWord()"
     [type]="messageType()"
-  >
-  </app-pop-up>
+  ></app-pop-up>
 
   <!-- Loading Daily Word -->
   @if (!isDailyWordLoaded() && !hasDailyWordError()) {
@@ -35,10 +34,10 @@
     <!-- Daily Word Error -->
     @if (hasDailyWordError()) {
       <div class="mb-4 text-center">
-        <div class="rounded-lg bg-red-50 px-4 py-3">
+        <div class="rounded-lg bg-red-50 px-4 py-3 dark:bg-red-900/20">
           <div class="mb-2 flex items-center justify-center gap-2">
             <svg
-              class="h-5 w-5 text-red-600"
+              class="h-5 w-5 text-red-600 dark:text-red-400"
               fill="currentColor"
               viewBox="0 0 20 20"
             >
@@ -48,9 +47,11 @@
                 clip-rule="evenodd"
               ></path>
             </svg>
-            <span class="font-semibold text-red-800">Service indisponible</span>
+            <span class="font-semibold text-red-800 dark:text-red-200"
+              >Service indisponible</span
+            >
           </div>
-          <p class="text-sm text-red-700">
+          <p class="text-sm text-red-700 dark:text-red-300">
             Le mot du jour ne peut pas être chargé pour le moment.
           </p>
           <button
@@ -66,9 +67,7 @@
     <!-- Game Board -->
     <div
       class="mt-2 mb-4 flex flex-col gap-1 select-none sm:gap-2 md:gap-2"
-      [ngClass]="{
-        'gameboard-restore': isRestoringFromStorage(),
-      }"
+      [ngClass]="{ 'gameboard-restore': isRestoringFromStorage() }"
     >
       @for (guess of guesses(); track $index; let rowIndex = $index) {
         <div
@@ -85,13 +84,13 @@
             <div
               class="flex aspect-square h-12 w-12 items-center justify-center rounded-sm border-3 text-lg font-bold uppercase transition-colors duration-300 sm:h-14 sm:w-14 sm:text-xl md:h-16 md:w-16 md:text-2xl lg:text-3xl"
               [ngClass]="{
-                'border-gray-300 bg-white text-gray-700':
+                'border-gray-300 bg-white text-gray-700 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300':
                   getStatusForPosition(rowIndex, letterIndex) === 'empty' &&
                   !isCurrentPosition(rowIndex, letterIndex),
-                'border-blue-500 bg-blue-50 text-gray-700':
+                'border-blue-500 bg-blue-50 text-gray-700 dark:bg-blue-900/30 dark:text-gray-300':
                   getStatusForPosition(rowIndex, letterIndex) === 'empty' &&
                   isCurrentPosition(rowIndex, letterIndex),
-                'border-gray-500 bg-white text-gray-700':
+                'border-gray-500 bg-white text-gray-700 dark:border-gray-400 dark:bg-gray-800 dark:text-gray-300':
                   getStatusForPosition(rowIndex, letterIndex) === 'empty' &&
                   getLetterForPosition(rowIndex, letterIndex),
                 'border-green-500 bg-green-500 text-white':
@@ -117,8 +116,10 @@
           <div
             class="rounded-lg p-3 sm:p-4 md:p-5"
             [ngClass]="{
-              'bg-green-100 text-green-800': status === 'won',
-              'bg-red-100 text-red-800': status === 'lost',
+              'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-200':
+                status === 'won',
+              'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-200':
+                status === 'lost',
             }"
           >
             @if (status === "won") {
@@ -134,7 +135,9 @@
             }
             <div class="mt-3 text-center">
               @if (canStartNewGame()) {
-                <p class="mb-2 text-sm font-medium text-green-600">
+                <p
+                  class="mb-2 text-sm font-medium text-green-600 dark:text-green-400"
+                >
                   🎉 Un nouveau défi quotidien est disponible !
                 </p>
                 <button
@@ -145,7 +148,7 @@
                   Nouveau défi !
                 </button>
               } @else {
-                <p class="mb-2 text-sm text-gray-600">
+                <p class="mb-2 text-sm text-gray-600 dark:text-gray-400">
                   Revenez demain pour un nouveau défi quotidien !
                 </p>
                 <span
@@ -183,7 +186,7 @@
                 [ngClass]="{
                   'bg-gray-400 text-white hover:bg-gray-500':
                     key === 'ENTER' || key === 'BACKSPACE',
-                  'bg-gray-200 text-gray-800 hover:bg-gray-300':
+                  'bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600':
                     getKeyStatus(key) === 'unused' &&
                     key !== 'ENTER' &&
                     key !== 'BACKSPACE',

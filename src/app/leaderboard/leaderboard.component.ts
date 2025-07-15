@@ -1,4 +1,11 @@
-import { Component, OnInit, inject, signal, effect } from "@angular/core";
+import {
+	Component,
+	OnInit,
+	inject,
+	signal,
+	effect,
+	ChangeDetectionStrategy,
+} from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { WordleApiService } from "../services/wordle-api.service";
 import { LeaderboardResponse } from "../models/wordle.interfaces";
@@ -10,6 +17,7 @@ import { GameEventsService } from "../services/game-events.service";
 	standalone: true,
 	imports: [CommonModule, LeaderboardSkeletonComponent],
 	templateUrl: "./leaderboard.component.html",
+	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LeaderboardComponent implements OnInit {
 	// Use signals for reactive state management
@@ -42,7 +50,7 @@ export class LeaderboardComponent implements OnInit {
 				this.leaderboard.set(data);
 				this.isLoading.set(false);
 			},
-			error: (error) => {
+			error: (error: unknown) => {
 				console.warn(
 					"Failed to load leaderboard (backend not available):",
 					error,
@@ -102,7 +110,7 @@ export class LeaderboardComponent implements OnInit {
 	// Get only the top 6 users for the compact layout
 	getTopSixUsers() {
 		const currentLeaderboard = this.leaderboard();
-		if (!currentLeaderboard || !currentLeaderboard.users) return [];
+		if (!currentLeaderboard?.users) return [];
 		return currentLeaderboard.users.slice(0, 6);
 	}
 

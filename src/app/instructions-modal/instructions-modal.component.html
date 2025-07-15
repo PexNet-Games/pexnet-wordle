@@ -1,26 +1,28 @@
-@if (isVisible) {
+@if (isVisible()) {
   <div
     class="modal-backdrop fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50"
     [class.closing]="isClosing()"
     (click)="onBackdropClick($event)"
   >
     <div
-      class="modal-content relative mx-4 max-w-md rounded-lg bg-white p-6 shadow-xl"
+      class="modal-content relative mx-4 max-w-md rounded-lg bg-white p-6 shadow-xl dark:bg-gray-800"
       [class.closing]="isClosing()"
     >
       <!-- Close Button -->
       <button
         (click)="onClose()"
-        class="absolute top-2 right-4 cursor-pointer text-gray-400 transition-colors duration-200 hover:text-gray-600"
+        class="absolute top-2 right-4 cursor-pointer text-gray-400 transition-colors duration-200 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
       >
         <span class="text-3xl">×</span>
       </button>
 
       <!-- Title -->
-      <h2 class="mb-4 text-2xl font-bold text-gray-800">Comment jouer ?</h2>
+      <h2 class="mb-4 text-2xl font-bold text-gray-800 dark:text-gray-200">
+        Comment jouer ?
+      </h2>
 
       <!-- Description -->
-      <div class="mb-4 space-y-3 font-normal text-gray-600">
+      <div class="mb-4 space-y-3 font-normal text-gray-600 dark:text-gray-300">
         <p>Devinez le Wordle en 6 essais.</p>
         <ul class="list-disc space-y-1 pl-5">
           <li>Chaque tentative doit être un mot valide de 5 lettres.</li>
@@ -41,28 +43,15 @@
             >
               F
             </div>
-            <div
-              class="flex h-12 w-12 items-center justify-center rounded border-2 border-gray-300 bg-gray-300 text-xl font-bold text-gray-800"
-            >
-              L
-            </div>
-            <div
-              class="flex h-12 w-12 items-center justify-center rounded border-2 border-gray-300 bg-gray-300 text-xl font-bold text-gray-800"
-            >
-              E
-            </div>
-            <div
-              class="flex h-12 w-12 items-center justify-center rounded border-2 border-gray-300 bg-gray-300 text-xl font-bold text-gray-800"
-            >
-              U
-            </div>
-            <div
-              class="flex h-12 w-12 items-center justify-center rounded border-2 border-gray-300 bg-gray-300 text-xl font-bold text-gray-800"
-            >
-              R
-            </div>
+            @for (letter of ["L", "E", "U", "R"]; track letter) {
+              <div
+                class="flex h-12 w-12 items-center justify-center rounded border-2 border-gray-300 bg-gray-300 text-xl font-bold text-gray-800 dark:border-gray-600 dark:bg-gray-600 dark:text-gray-200"
+              >
+                {{ letter }}
+              </div>
+            }
           </div>
-          <p class="text-sm font-normal text-gray-600">
+          <p class="text-sm font-normal text-gray-600 dark:text-gray-300">
             La lettre <strong class="!font-bold text-green-500">F</strong> est
             bien placée dans le mot final.
           </p>
@@ -72,7 +61,7 @@
         <div>
           <div class="mb-2 flex gap-1">
             <div
-              class="flex h-12 w-12 items-center justify-center rounded border-2 border-gray-300 bg-gray-300 text-xl font-bold text-gray-800"
+              class="flex h-12 w-12 items-center justify-center rounded border-2 border-gray-300 bg-gray-300 text-xl font-bold text-gray-800 dark:border-gray-600 dark:bg-gray-600 dark:text-gray-200"
             >
               T
             </div>
@@ -81,23 +70,15 @@
             >
               A
             </div>
-            <div
-              class="flex h-12 w-12 items-center justify-center rounded border-2 border-gray-300 bg-gray-300 text-xl font-bold text-gray-800"
-            >
-              B
-            </div>
-            <div
-              class="flex h-12 w-12 items-center justify-center rounded border-2 border-gray-300 bg-gray-300 text-xl font-bold text-gray-800"
-            >
-              L
-            </div>
-            <div
-              class="flex h-12 w-12 items-center justify-center rounded border-2 border-gray-300 bg-gray-300 text-xl font-bold text-gray-800"
-            >
-              E
-            </div>
+            @for (letter of ["B", "L", "E"]; track letter) {
+              <div
+                class="flex h-12 w-12 items-center justify-center rounded border-2 border-gray-300 bg-gray-300 text-xl font-bold text-gray-800 dark:border-gray-600 dark:bg-gray-600 dark:text-gray-200"
+              >
+                {{ letter }}
+              </div>
+            }
           </div>
-          <p class="text-sm font-normal text-gray-600">
+          <p class="text-sm font-normal text-gray-600 dark:text-gray-300">
             La lettre
             <strong class="!font-bold text-yellow-500">A</strong> existe dans le
             mot mais à une autre position.
@@ -107,33 +88,30 @@
         <!-- Example 3 -->
         <div>
           <div class="mb-2 flex gap-1">
-            <div
-              class="flex h-12 w-12 items-center justify-center rounded border-2 border-gray-300 bg-gray-300 text-xl font-bold text-gray-800"
-            >
-              V
-            </div>
-            <div
-              class="flex h-12 w-12 items-center justify-center rounded border-2 border-gray-300 bg-gray-300 text-xl font-bold text-gray-800"
-            >
-              E
-            </div>
-            <div
-              class="flex h-12 w-12 items-center justify-center rounded border-2 border-gray-500 bg-gray-500 text-xl font-bold text-white"
-            >
-              N
-            </div>
-            <div
-              class="flex h-12 w-12 items-center justify-center rounded border-2 border-gray-300 bg-gray-300 text-xl font-bold text-gray-800"
-            >
-              T
-            </div>
-            <div
-              class="flex h-12 w-12 items-center justify-center rounded border-2 border-gray-300 bg-gray-300 text-xl font-bold text-gray-800"
-            >
-              E
-            </div>
+            @for (
+              letter of [
+                { char: "V", status: "gray" },
+                { char: "E", status: "gray" },
+                { char: "N", status: "absent" },
+                { char: "T", status: "gray" },
+                { char: "E", status: "gray" },
+              ];
+              track letter.char + $index
+            ) {
+              <div
+                class="flex h-12 w-12 items-center justify-center rounded border-2 text-xl font-bold"
+                [ngClass]="{
+                  'border-gray-300 bg-gray-300 text-gray-800 dark:border-gray-600 dark:bg-gray-600 dark:text-gray-200':
+                    letter.status === 'gray',
+                  'border-gray-500 bg-gray-500 text-white':
+                    letter.status === 'absent',
+                }"
+              >
+                {{ letter.char }}
+              </div>
+            }
           </div>
-          <p class="text-sm font-normal text-gray-600">
+          <p class="text-sm font-normal text-gray-600 dark:text-gray-300">
             La lettre
             <strong class="!font-bold text-gray-500">N</strong> n'apparaît pas
             dans le mot recherché.

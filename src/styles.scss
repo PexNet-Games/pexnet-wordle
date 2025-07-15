@@ -10,6 +10,14 @@
   font-weight: 400;
 }
 
+/* Dark mode support for backgrounds and text */
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: theme('colors.gray.900');
+    color: theme('colors.gray.100');
+  }
+}
+
 @keyframes shake {
   0%, 100% { transform: translateX(0); }
   10%, 30%, 50%, 70%, 90% { transform: translateX(-8px); }

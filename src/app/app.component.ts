@@ -1,5 +1,12 @@
 import { CommonModule } from "@angular/common";
-import { Component, OnInit, inject, computed, effect } from "@angular/core";
+import {
+	Component,
+	OnInit,
+	inject,
+	computed,
+	effect,
+	ChangeDetectionStrategy,
+} from "@angular/core";
 import { WordleComponent } from "./wordle/wordle.component";
 import { StatisticsComponent } from "./statistics/statistics.component";
 import { LeaderboardComponent } from "./leaderboard/leaderboard.component";
@@ -9,13 +16,31 @@ import { GameEventsService } from "./services/game-events.service";
 
 @Component({
 	selector: "app-root",
+	standalone: true,
 	imports: [
 		CommonModule,
 		WordleComponent,
 		StatisticsComponent,
 		LeaderboardComponent,
 	],
-	templateUrl: "./app.component.html",
+	template: `
+		<div class="flex min-h-screen flex-col bg-slate-50 dark:bg-gray-900">
+			<main class="mx-auto grid w-full max-w-7xl flex-1 grid-cols-1 gap-4 p-4 sm:grid lg:grid-cols-[1fr_400px] lg:gap-4 lg:p-2">
+				<div class="flex items-start justify-center">
+					<app-wordle></app-wordle>
+				</div>
+
+				<aside class="order-first flex flex-col gap-2 lg:order-none">
+					@if (currentUser(); as user) {
+						<app-statistics [discordId]="user.discordId"></app-statistics>
+					}
+
+					<app-leaderboard></app-leaderboard>
+				</aside>
+			</main>
+		</div>
+	`,
+	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppComponent implements OnInit {
 	// Inject services using the new pattern

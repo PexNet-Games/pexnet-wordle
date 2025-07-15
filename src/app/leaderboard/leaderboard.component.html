@@ -1,14 +1,18 @@
 @if (leaderboard(); as leaderboard) {
   @if (leaderboard.users && leaderboard.users.length > 0) {
-    <div class="rounded-lg bg-white p-6 shadow-sm">
-      <h2 class="mb-4 text-xl font-bold text-gray-800">Classement</h2>
+    <div class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800">
+      <h2 class="mb-4 text-xl font-bold text-gray-800 dark:text-gray-200">
+        Classement
+      </h2>
       <!-- 2-column grid layout with 3 users per column -->
       <div class="mb-4 grid grid-cols-2 gap-3">
         @for (user of getTopSixUsers(); track user.discordId; let i = $index) {
           <div
-            class="flex items-center rounded-md border border-gray-200 bg-gray-50 p-2"
+            class="flex items-center rounded-md border border-gray-200 bg-gray-50 p-2 dark:border-gray-600 dark:bg-gray-700"
             [class.bg-yellow-100]="i < 3"
+            [class.dark:bg-yellow-900]="i < 3"
             [class.border-yellow-300]="i < 3"
+            [class.dark:border-yellow-600]="i < 3"
           >
             <div class="mr-2 w-6 text-center text-base font-bold">
               @if (i === 0) {
@@ -22,18 +26,22 @@
               }
             </div>
             <div class="min-w-0 flex-1">
-              <div class="truncate text-sm font-bold text-gray-800">
+              <div
+                class="truncate text-sm font-bold text-gray-800 dark:text-gray-200"
+              >
                 {{ user.username }}
               </div>
-              <div class="text-xs text-gray-500">
+              <div class="text-xs text-gray-500 dark:text-gray-400">
                 {{ user.totalGames }} parties
               </div>
             </div>
             <div class="ml-2 text-right">
-              <div class="text-sm font-bold text-emerald-600">
+              <div
+                class="text-sm font-bold text-emerald-600 dark:text-emerald-400"
+              >
                 {{ user.winPercentage }}%
               </div>
-              <div class="text-xs text-gray-500">
+              <div class="text-xs text-gray-500 dark:text-gray-400">
                 {{ user.currentStreak }} série
               </div>
             </div>
@@ -49,8 +57,8 @@
       </button>
     </div>
   } @else {
-    <div class="rounded-lg bg-white p-6 shadow-sm">
-      <div class="py-8 text-center text-gray-500">
+    <div class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800">
+      <div class="py-8 text-center text-gray-500 dark:text-gray-400">
         <p class="mb-4">Aucune donnée de classement disponible</p>
         <button
           class="rounded-md bg-gray-500 px-4 py-2 text-white transition-colors hover:bg-gray-600"

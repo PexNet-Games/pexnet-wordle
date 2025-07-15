@@ -1,15 +1,22 @@
 import { CommonModule } from "@angular/common";
-import { Component, EventEmitter, Input, Output, signal } from "@angular/core";
+import {
+	Component,
+	ChangeDetectionStrategy,
+	signal,
+	input,
+	output,
+} from "@angular/core";
 
 @Component({
 	selector: "app-instructions-modal",
+	standalone: true,
 	imports: [CommonModule],
 	templateUrl: "./instructions-modal.component.html",
-	styleUrl: "./instructions-modal.component.scss",
+	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InstructionsModalComponent {
-	@Input() isVisible: boolean = false;
-	@Output() close = new EventEmitter<void>();
+	isVisible = input<boolean>(false);
+	close = output<void>();
 
 	public isClosing = signal<boolean>(false);
 

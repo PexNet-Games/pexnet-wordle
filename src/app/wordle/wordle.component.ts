@@ -21,6 +21,7 @@ import { WordleSkeletonComponent } from "./wordle-skeleton.component";
 
 @Component({
 	selector: "app-wordle",
+	standalone: true,
 	imports: [
 		CommonModule,
 		PopUpComponent,

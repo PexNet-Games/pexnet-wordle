@@ -1,11 +1,11 @@
 import {
 	Component,
 	OnInit,
-	Input,
 	ChangeDetectionStrategy,
 	inject,
 	signal,
 	effect,
+	input,
 } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { WordleApiService } from "../services/wordle-api.service";
@@ -21,7 +21,7 @@ import { GameEventsService } from "../services/game-events.service";
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StatisticsComponent implements OnInit {
-	@Input() discordId: string | null = null;
+	discordId = input<string | null>(null);
 
 	public stats = signal<UserStatsResponse | null>(null);
 	public isLoading = signal<boolean>(true);
@@ -33,7 +33,7 @@ export class StatisticsComponent implements OnInit {
 		// Listen for refresh events
 		effect(() => {
 			const refreshTrigger = this.gameEventsService.refreshStats();
-			if (refreshTrigger > 0 && this.discordId) {
+			if (refreshTrigger > 0 && this.discordId()) {
 				console.log("📊 Refreshing stats due to game completion...");
 				this.loadStats();
 			}
@@ -41,7 +41,7 @@ export class StatisticsComponent implements OnInit {
 	}
 
 	ngOnInit() {
-		if (this.discordId) {
+		if (this.discordId()) {
 			this.loadStats();
 		} else {
 			this.isLoading.set(false);
@@ -49,9 +49,10 @@ export class StatisticsComponent implements OnInit {
 	}
 
 	private loadStats() {
-		if (!this.discordId) return;
+		const discordId = this.discordId();
+		if (!discordId) return;
 
-		this.wordleApiService.getUserStats(this.discordId).subscribe({
+		this.wordleApiService.getUserStats(discordId).subscribe({
 			next: (stats) => {
 				this.stats.set(stats);
 				this.isLoading.set(false);
@@ -65,7 +66,7 @@ export class StatisticsComponent implements OnInit {
 
 	// Public method to refresh stats (called after game completion)
 	refreshStats() {
-		if (!this.discordId) return;
+		if (!this.discordId()) return;
 		this.loadStats();
 	}
 
