@@ -1,8 +1,9 @@
-import { Component, OnInit, inject, signal } from "@angular/core";
+import { Component, OnInit, inject, signal, effect } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { WordleApiService } from "../services/wordle-api.service";
 import { LeaderboardResponse } from "../models/wordle.interfaces";
 import { LeaderboardSkeletonComponent } from "./leaderboard-skeleton.component";
+import { GameEventsService } from "../services/game-events.service";
 
 @Component({
 	selector: "app-leaderboard",
@@ -17,6 +18,18 @@ export class LeaderboardComponent implements OnInit {
 
 	// Inject services using the inject function
 	private wordleApiService = inject(WordleApiService);
+	private gameEventsService = inject(GameEventsService);
+
+	constructor() {
+		// Listen for refresh events
+		effect(() => {
+			const refreshTrigger = this.gameEventsService.refreshLeaderboard();
+			if (refreshTrigger > 0) {
+				console.log("🏆 Refreshing leaderboard due to game completion...");
+				this.loadLeaderboard();
+			}
+		});
+	}
 
 	ngOnInit() {
 		this.loadLeaderboard();
@@ -91,5 +104,10 @@ export class LeaderboardComponent implements OnInit {
 		const currentLeaderboard = this.leaderboard();
 		if (!currentLeaderboard || !currentLeaderboard.users) return [];
 		return currentLeaderboard.users.slice(0, 6);
+	}
+
+	// Public method to refresh leaderboard (called after game completion)
+	refreshLeaderboard() {
+		this.loadLeaderboard();
 	}
 }

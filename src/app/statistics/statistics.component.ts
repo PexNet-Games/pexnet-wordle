@@ -5,11 +5,13 @@ import {
 	ChangeDetectionStrategy,
 	inject,
 	signal,
+	effect,
 } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { WordleApiService } from "../services/wordle-api.service";
 import { UserStatsResponse } from "../models/wordle.interfaces";
 import { StatisticsSkeletonComponent } from "./statistics-skeleton.component";
+import { GameEventsService } from "../services/game-events.service";
 
 @Component({
 	selector: "app-statistics",
@@ -25,6 +27,18 @@ export class StatisticsComponent implements OnInit {
 	public isLoading = signal<boolean>(true);
 
 	private wordleApiService = inject(WordleApiService);
+	private gameEventsService = inject(GameEventsService);
+
+	constructor() {
+		// Listen for refresh events
+		effect(() => {
+			const refreshTrigger = this.gameEventsService.refreshStats();
+			if (refreshTrigger > 0 && this.discordId) {
+				console.log("📊 Refreshing stats due to game completion...");
+				this.loadStats();
+			}
+		});
+	}
 
 	ngOnInit() {
 		if (this.discordId) {
@@ -47,6 +61,12 @@ export class StatisticsComponent implements OnInit {
 				this.isLoading.set(false);
 			},
 		});
+	}
+
+	// Public method to refresh stats (called after game completion)
+	refreshStats() {
+		if (!this.discordId) return;
+		this.loadStats();
 	}
 
 	getDistributionPercentage(guess: string): number {

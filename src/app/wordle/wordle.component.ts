@@ -13,7 +13,6 @@ import { InstructionsModalComponent } from "../instructions-modal/instructions-m
 import { MessageType, PopUpComponent } from "../pop-up/pop-up.component";
 import { removeAccents } from "../utils/accent-utils";
 import { GameStatus, WordGuess, WordleService } from "./wordle.service";
-import { GameStateService } from "../services/game-state.service";
 import { WordValidationService } from "../services/word-validation.service";
 import { WordleApiService } from "../services/wordle-api.service";
 import { HubIntegrationService } from "../services/hub-integration.service";
@@ -50,6 +49,7 @@ export class WordleComponent implements OnInit {
 	public wordsLoaded = computed(() =>
 		this.wordValidationService.wordsLoadedWritable(),
 	);
+	public canStartNewGame = computed(() => this.wordleService.canStartNewGame());
 	public isDailyWordLoaded = computed(() =>
 		this.wordleService.isDailyWordLoaded(),
 	);
@@ -155,7 +155,11 @@ export class WordleComponent implements OnInit {
 	}
 
 	onNewGame(): void {
-		this.wordleService.newGame();
+		// Try to start a new daily game if a new word is available
+		if (!this.wordleService.forceStartNewDailyGame()) {
+			// If no new word is available, call the original newGame method which will show an info message
+			this.wordleService.newGame();
+		}
 	}
 
 	onShowInstructions(): void {

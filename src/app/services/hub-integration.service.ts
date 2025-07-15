@@ -1,12 +1,13 @@
 import { Injectable, signal } from "@angular/core";
 import { environment } from "../../environments/environment";
-import { HubUserData } from "../models/wordle.interfaces";
+import type { HubUserData } from "../models/wordle.interfaces";
 
 @Injectable({
 	providedIn: "root",
 })
 export class HubIntegrationService {
 	public userDataWritable = signal<HubUserData | null>(null);
+	public gameCompletedWritable = signal<boolean>(false);
 
 	private messageListener: ((event: MessageEvent) => void) | null = null;
 
@@ -62,7 +63,7 @@ export class HubIntegrationService {
 	}
 
 	// Send message to parent hub
-	private sendMessageToHub(message: any) {
+	private sendMessageToHub(message: Record<string, unknown>) {
 		if (window.parent !== window) {
 			window.parent.postMessage(message, environment.hubUrl);
 		}
@@ -82,6 +83,14 @@ export class HubIntegrationService {
 			type: "GAME_STATUS_UPDATE",
 			status: "completed",
 		});
+
+		// Set the signal to trigger UI updates
+		this.gameCompletedWritable.set(true);
+	}
+
+	// Reset game completed flag
+	resetGameCompleted() {
+		this.gameCompletedWritable.set(false);
 	}
 
 	// Get current user data

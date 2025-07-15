@@ -80,7 +80,9 @@ export class WordleService {
 
 			// Validate that the saved word matches today's daily word
 			if (this.currentWordId > 0 && savedState.wordId !== this.currentWordId) {
-				console.log("⚠️ Saved word is not today's daily word, starting fresh");
+				console.log(
+					"🆕 New daily word available! Saved game is from previous day, clearing old state",
+				);
 				this.localStorageService.clearGameState();
 				return false;
 			}
@@ -253,10 +255,6 @@ export class WordleService {
 			return;
 		}
 
-		console.log(
-			"🚀 ~ WordleService ~ submitGuess ~ this.currentGuess:",
-			this.currentGuess,
-		);
 		const guess = this.evaluateGuess(this.currentGuess);
 		this.guesses[this.currentRow] = guess;
 
@@ -277,12 +275,8 @@ export class WordleService {
 		// Save game state after each guess
 		this.saveGameToStorage();
 
-		// Clear localStorage when game is completed
-		if (this.gameStatus !== "playing") {
-			setTimeout(() => {
-				this.localStorageService.clearGameState();
-			}, 5000); // Clear after 5 seconds to allow user to see final state
-		}
+		// Don't clear localStorage when game is completed - keep the completed game
+		// state until a new daily word is available
 	}
 
 	private evaluateGuess(guess: string): WordGuess {
@@ -380,10 +374,14 @@ export class WordleService {
 					const savedState = this.localStorageService.loadGameState();
 					if (savedState && savedState.wordId !== this.currentWordId) {
 						console.log(
-							"⚠️ Saved game doesn't match today's word, starting fresh...",
+							"🆕 New daily word available! Clearing old completed game and starting fresh...",
 						);
 						this.localStorageService.clearGameState();
 						this.startDailyGame();
+					} else {
+						console.log(
+							"✅ Restored game matches today's word - keeping game state",
+						);
 					}
 				}
 			},
@@ -424,5 +422,28 @@ export class WordleService {
 
 	hasDailyWordError(): boolean {
 		return this.dailyWordError();
+	}
+
+	// Check if the user can start a new game (when a new daily word is available)
+	canStartNewGame(): boolean {
+		const savedState = this.localStorageService.loadGameState();
+		// Can start new game if no saved state or if saved word ID doesn't match current word ID
+		return (
+			!savedState ||
+			(this.currentWordId > 0 && savedState.wordId !== this.currentWordId)
+		);
+	}
+
+	// Force start a new daily game (if new word is available)
+	forceStartNewDailyGame(): boolean {
+		if (!this.canStartNewGame()) {
+			console.log("🚫 Cannot start new game - same daily word");
+			return false;
+		}
+
+		console.log("🔄 Starting new daily game - new word available");
+		this.localStorageService.clearGameState();
+		this.startDailyGame();
+		return true;
 	}
 }
