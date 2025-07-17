@@ -76,4 +76,19 @@ export class StatisticsComponent implements OnInit {
 		const count = currentStats.guessDistribution[guess] || 0;
 		return (count / currentStats.totalGames) * 100;
 	}
+
+	// Method to get failed games percentage (death wordle - 💀)
+	getFailedGamesPercentage(): number {
+		const currentStats = this.stats();
+		if (!currentStats || currentStats.totalGames === 0) return 0;
+		const failedCount = currentStats.guessDistribution["0"] || 0;
+		return (failedCount / currentStats.totalGames) * 100;
+	}
+
+	// Method to get failed games count
+	getFailedGamesCount(): number {
+		const currentStats = this.stats();
+		if (!currentStats) return 0;
+		return currentStats.guessDistribution["0"] || 0;
+	}
 }

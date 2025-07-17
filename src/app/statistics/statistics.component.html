@@ -44,9 +44,9 @@
 
       @for (guess of ["1", "2", "3", "4", "5", "6"]; track guess) {
         <div class="mb-1 flex items-center gap-2">
-          <span class="w-3 text-xs text-gray-600 dark:text-gray-400">{{
-            guess
-          }}</span>
+          <span class="w-3 text-xs text-gray-600 dark:text-white">
+            {{ guess }}</span
+          >
           <div
             class="relative h-4 flex-1 rounded-sm bg-gray-100 dark:bg-gray-700"
           >
@@ -61,6 +61,31 @@
           </div>
         </div>
       }
+
+      <!-- Failed Games (Death Wordle) -->
+      <div class="mb-1 flex items-center gap-2">
+        <div
+          class="flex w-3 justify-center text-xs text-gray-600 dark:text-gray-400"
+        >
+          <img
+            src="assets/icons/skull.svg"
+            alt="Échecs"
+            class="mr-1 h-3 w-3 dark:brightness-0 dark:invert"
+          />
+        </div>
+        <div
+          class="relative h-4 flex-1 rounded-sm bg-gray-100 dark:bg-gray-700"
+        >
+          <div
+            class="flex h-full min-w-6 items-center justify-end rounded-sm bg-emerald-500 pr-1"
+            [style.width.%]="getFailedGamesPercentage()"
+          >
+            <span class="text-xs font-bold text-white">
+              {{ getFailedGamesCount() }}
+            </span>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 } @else if (isLoading()) {
